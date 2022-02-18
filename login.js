@@ -2,7 +2,7 @@
 
 (async function () {
   
-  const protocol = location.protocol === 'http' ? 'ws' : 'wss' 
+  const protocol = location.protocol === 'http' ? 'ws' : 'ws' 
   const webSocketURL = protocol + '://' + location.host + location.pathname + '/socket'
   const initialTries = 20
   const reconnectInterval = 500
@@ -82,6 +82,8 @@
     }
 
     const sessionState = document.getElementById('session-state')
+    const disclosureState = document.getElementById('disclosure-state')
+    const credentialState = document.getElementById('credential-state')
 
     const { WalletProtocol, HttpInitiatorTransport, Session } = walletProtocol
     const { openModal, LocalSessionManager } = walletProtocolUtils
@@ -95,15 +97,32 @@
     sessionManager
     .$session
     .subscribe((session) => {
-        sessionState.innerText = session !== undefined ? 'ON' : 'OFF'
+      sessionState.innerText = session !== undefined ? '1. i3Market wallet successfully paired' : 'Missing pairing with i3Market wallet'
         if(session !== undefined) {
-            console.log('enabling flow')  
-            const api = new WalletApi(session)              
-            /*api.identities.select().then(result => {
-                console.log(result)
-            })*/
-            api.disclosure.disclose({ jwt: rawSdr }).then(result => {
-                console.log(result)
+            console.log('enabling flow')              
+            const api = new WalletApi(session)
+            disclosureState.innerText = '2. Waiting for the credentials disclosure'     
+            api.disclosure.disclose({ jwt: rawSdr }).then(result => {  
+                            
+                // console.log('selective disclosure response:')
+                // console.log(result.jwt)
+                disclosureState.innerText = '2. Credentials disclosed successfully'
+                credentialState.innerText = '3. Checking the validity of the disclosed credentials..'
+
+                // prepare the object to send
+                const form = document.createElement('form')
+                console.log(location.pathname + 'login')
+                form.setAttribute('action', location.pathname + '/login')
+                form.setAttribute('method', 'POST')
+                form.style.display = 'none'
+
+                const codeInput = document.createElement('input')
+                codeInput.setAttribute('name', 'code')
+                codeInput.value = result.jwt
+                form.appendChild(codeInput)
+
+                document.body.appendChild(form)
+                form.submit()
             })
 
         } else {
