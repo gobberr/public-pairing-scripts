@@ -2,7 +2,7 @@
 
 (async function () {
   
-  const protocol = location.protocol === 'http' ? 'ws' : 'ws' 
+  const protocol = location.protocol === 'http' ? 'ws' : 'wss' 
   const webSocketURL = protocol + '://' + location.host + location.pathname + '/socket'
   const initialTries = 20
   const reconnectInterval = 500
