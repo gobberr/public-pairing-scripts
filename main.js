@@ -65,7 +65,9 @@
                 api.resources.create(credentialToPost).then(walletResponse => {
                   // console.log(walletResponse)
                   walletState.innerText = '4. Credential successfully stored in the wallet'
-                  let url = decodeURIComponent(callbackUrl)
+                  let url = decodeURIComponent(callbackUrl)                  
+                  if(url[0] == '"') url = url.substring(1)
+                  if(url[url.length-1] == '"') url = url.substring(0,url.length-1)
                   document.location.href = url
                 }).catch(err => { 
                   console.log(err)
